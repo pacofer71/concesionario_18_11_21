@@ -45,7 +45,17 @@ class Marcas extends Conexion{
     public function update(){
 
     }
-    public function delete(){
+    public function delete($id){
+        $q="delete from marcas where id=:id";
+        $stmt=parent::$conexion->prepare($q);
+        try{
+            $stmt->execute([
+                ':id'=>$id
+            ]);
+        }catch(PDOException $ex){
+            die("error al borrar marca: ".$ex->getMessage());
+        }
+        parent::$conexion=null;
 
     }
     //_______________  OTROS METODOS _______________________

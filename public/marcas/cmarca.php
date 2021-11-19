@@ -1,7 +1,7 @@
 <?php
     session_start();
     require dirname(__DIR__, 2)."/vendor/autoload.php";
-    use Concesionario\Marcas;
+    use Concesionario\{Marcas, Imagen};
     
     $URL_APP="http://127.0.0.1/~pacofer71/pdo/concesionario/public/";
     $error=false;
@@ -17,13 +17,51 @@
         //proceso el formulario
         $n=ucfirst(trim($_POST['nombre']));
         $p=ucfirst(trim($_POST['pais']));
+
         comprobarCampos("nombre", $n);
         comprobarCampos("pais", $p);
+
+        $marca= new Marcas;
+
         //comprobamos imagen
+        //1.- veo si he subido o no una imagen
+        if(is_uploaded_file($_FILES['img']['tmp_name'])){
+            //he subido un fichero
+            if((new Imagen)->isImagen($_FILES['img']['type'])){
+                //he subido la imagen
+                $imagen=new Imagen;
+                $imagen->setAppUrl("http://127.0.0.1/~pacofer71/pdo/concesionario/public/");
+                $imagen->setDirStorage(dirname(__DIR__)."/img/marcas/");
+                $imagen->setNombreF($_FILES['img']['name']);
+                if($imagen->guardarImagen($_FILES['img']['tmp_name'])){
+                    //genero la url a ese fichero para guararla en la base de datos
+                    $marca->setImg($imagen->getUrlImagen('marcas'));
+                }else{
+                    $error=true;
+                    $_SESSION['err_img']="***No sepudo guardar la imagen!!!";
+                }
+
+            }else{
+                //Lo que he subido NO es una imagen
+                $error=true;
+                $_SESSION['err_img']="***El fichero debe ser una imagen!!!";
+            }
+
+        }else{
+            //NO he subido nada
+            $imagen=new Imagen;
+            $imagen->setAppUrl("http://127.0.0.1/~pacofer71/pdo/concesionario/public/");
+            $marca->setImg($imagen->guardarDefault('marcas'));
+            
+            
+        }
 
         //fin
         if(!$error){
-            //guardo
+            //guardamos la marca
+            $marca->setNombre($n)->setPais($p)->create();
+            $_SESSION['mensaje']="Marca guardada.";
+            header("Location:index.php"); 
         }else{
             //muestro
             header("Location:{$_SERVER['PHP_SELF']}");
@@ -77,6 +115,12 @@
                 <div class="mb-3">
                     <label for="i" class="form-label">Logo Marca</label>
                     <input class="form-control" type="file" id="i" name="img">  
+                    <?php
+                        if(isset($_SESSION['err_img'])){
+                            echo "<p class='text-danger mt-1'>{$_SESSION['err_img']}</p>";
+                            unset($_SESSION['err_img']);
+                        }
+                    ?>
                 </div>
                 <div class="mb-3">
                     <button type="submit" name="enviar" class="btn btn-success"><i class="fas fa-save"></i> Guardar</button>

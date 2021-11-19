@@ -28,7 +28,15 @@
 
 <body style="background-color:#ff9800">
     <h4 class="text-center mt-2">Marcas de Autos</h4>
+   
     <div class="container mt-2">
+    <?php
+      if(isset($_SESSION['mensaje'])){
+        echo "<p class='p-2 my-2 text-danger bg-info rounded'>
+        <i class='fas fa-info'></i> {$_SESSION['mensaje']}</p>";
+        unset($_SESSION['mensaje']);
+      } 
+    ?>
         <a href="cmarca.php" class="btn btn-info my-2"><i class="fas fa-plus"></i> Nueva</a>
     <table class="table table-striped">
   <thead>
@@ -43,13 +51,20 @@
   <tbody>
       <?php
       while($fila=$stmt->fetch(PDO::FETCH_OBJ)){
+        $i=serialize($fila);
         echo <<<TXT
         <tr>
         <th scope="row">{$fila->id}</th>
         <td>{$fila->nombre}</td>
         <td><img src='{$fila->img}' width='40rem' height='40rem' class='img-thumbnail'></td>
         <td>{$fila->pais}</td>
-        <td>Botones</td>
+        <td>
+          <form name='a' method='POST' action='bmarca.php'>
+          <input type='hidden' name='obj' value='$i'>
+          <a href='emarca.php?id={$fila->id}' class='btn btn-warning'><i class='fas fa-edit'></i></a>
+          <button type='submit' class='btn btn-danger'><i class='fas fa-trash'></i></button>
+          </form>
+        </td>
         </tr>
         TXT;
       }
