@@ -1,0 +1,20 @@
+{
+    "name": "pacofer71/concesionario",
+    "description": "Crud de un concesionario realizado en PDO",
+    "type": "project",
+    "license": "GNU/GPL",
+    "autoload": {
+        "psr-4": {
+            "Concesionario\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "pacofer71",
+            "email": "pacofer71@gmail.com"
+        }
+    ],
+    "require": {
+        "fakerphp/faker": "^1.16"
+    }
+}

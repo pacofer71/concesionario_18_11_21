@@ -1,0 +1,5 @@
+.config
+vendor/
+plantillas/
+cache/
+composer.lockcompo
