@@ -42,7 +42,20 @@ class Marcas extends Conexion{
         return $stmt;
     }
 
-    public function update(){
+    public function update($id){
+        $q="update marcas set nombre=:n, pais=:p, img=:i where id=:id";
+        $stmt=parent::$conexion->prepare($q);
+        try{
+            $stmt->execute([
+                ':n'=>$this->nombre,
+                ':i'=>$this->img,
+                ':p'=>$this->pais,
+                ':id'=>$id
+            ]);
+        }catch(PDOException $ex){
+            die("Error al actualizar marca: ".$ex->getMessage());
+        }
+        parent::$conexion=null;
 
     }
     public function delete($id){
@@ -76,6 +89,7 @@ class Marcas extends Conexion{
         }
 
     }
+    //____________________________________________________________________
     public function hayMarcas(){
         $q="select * from marcas";
         $stmt=parent::$conexion->prepare($q);
@@ -87,6 +101,39 @@ class Marcas extends Conexion{
         parent::$conexion=null;
         return ($stmt->rowCount()!=0);
     }
+    //______________________________________________________________________
+    public function datosMarca($id){
+        $q="select * from marcas where id=:id";
+        $stmt=parent::$conexion->prepare($q);
+        try{
+            $stmt->execute([
+                ':id'=>$id
+            ]);
+        }catch(PDOException $ex){
+            die("error al editar marca: ".$ex->getMessage());
+        }
+        parent::$conexion=null;
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+    //___________________________________________________________________
+    public function getMarcasId(){
+        $q="select id from marcas";
+        $stmt=parent::$conexion->prepare($q);
+        try{
+            $stmt->execute();
+        }catch(PDOException $ex){
+            die("error al devolver ids marca: ".$ex->getMessage());
+        }
+        parent::$conexion=null;
+        $ids=[];
+        while($fila=$stmt->fetch(PDO::FETCH_OBJ)){
+            $ids[]=$fila->id;
+        }
+        return $ids;
+
+    }
+
+    //____________________________ SETTERS ________________________________
 
     /**
      * Set the value of id
