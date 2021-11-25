@@ -1,10 +1,13 @@
 <?php
+if(!isset($_GET['campo']) && !isset($_GET['valor'])){
+    header("Location:index.php");
+}
      session_start();
      require dirname(__DIR__, 2)."/vendor/autoload.php";
      use Concesionario\Coches;
 
-    (new Coches)->crearCoches(150);
-    $stmt=(new Coches)->read()
+    
+    $stmt=(new Coches)->filtroCoches($_GET['campo'], $_GET['valor']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -37,7 +40,7 @@
         unset($_SESSION['mensaje']);
       } 
     ?>
-        <a href="ccoche.php" class="btn btn-info my-2"><i class="fas fa-plus"></i> Nuevo</a>
+        <a href="cmarca.php" class="btn btn-info my-2"><i class="fas fa-plus"></i> Nuevo</a>
     <table class="table table-striped">
   <thead>
     <tr>
@@ -64,10 +67,10 @@
         <td><img src='{$fila->img}' width='40rem' height='40rem' class='img-thumbnail'></td>
         <td>{$fila->tipo}</td>
         <td>
-          <form name='a' method='POST' action='bcoche.php'>
+          <form name='a' method='POST' action='bcoches.php'>
           <input type='hidden' name='obj' value='$i'>
           <a href='ecoche.php?id={$fila->id}' class='btn btn-warning'><i class='fas fa-edit'></i></a>
-          <button type='submit' class='btn btn-danger' onclick="return confirm('¿Borrar Coche?')";><i class='fas fa-trash'></i></button>
+          <button type='submit' class='btn btn-danger'><i class='fas fa-trash'></i></button>
           </form>
         </td>
         </tr>

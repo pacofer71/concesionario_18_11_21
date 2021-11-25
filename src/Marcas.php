@@ -132,6 +132,19 @@ class Marcas extends Conexion{
         return $ids;
 
     }
+    //-------------------------------- devolver nombre e id de marca
+    public function misMarcas(){
+        $q="select id, nombre from marcas order by nombre";
+        $stmt=parent::$conexion->prepare($q);
+        try{
+            $stmt->execute();
+        }catch(PDOException $ex){
+            die("error al devolver ids marca: ".$ex->getMessage());
+        }
+        parent::$conexion=null;
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+    }
 
     //____________________________ SETTERS ________________________________
 
