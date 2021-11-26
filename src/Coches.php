@@ -56,8 +56,25 @@ class Coches extends Conexion
         return $stmt;
     }
     
-    public function update()
+    public function update($id)
     {
+        $q="update coches set modelo=:m, kms=:k, tipo=:t, color=:c, img=:i, marca_id=:mi where id=:id";
+        $stmt = parent::$conexion->prepare($q);
+        try {
+            $stmt->execute([
+                ':m' => $this->modelo,
+                ':k' => $this->kms,
+                ':t' => $this->tipo,
+                ':c' => $this->color,
+                ':i' => $this->img,
+                ':mi' => $this->marca_id,
+                ':id'=>$id
+
+            ]);
+        } catch (PDOException $ex) {
+            die("Error al actualizar coche: " . $ex->getMessage());
+        }
+        parent::$conexion = null;
     }
     
     public function delete($id)
@@ -227,5 +244,9 @@ class Coches extends Conexion
         $this->marca_id = $marca_id;
 
         return $this;
+    }
+    //----------------metodo toString
+    public function __toString(){
+        return "modelo:{$this->modelo}, color:{$this->color}, kms:{$this->kms}, tipo:{$this->tipo}, img:{$this->img}";
     }
 }

@@ -13,6 +13,7 @@ use Concesionario\{Marcas, Coches, Imagen};
 $marcas = (new Marcas)->misMarcas();
 $tipos = ['Electrico', 'Hibrido', 'Gasolina', 'Gasoil', 'Gas'];
 $errorGeneral = false;
+
 $esteCoche = (new Coches)->detalleCoche($id);
 
 function validaCampos($n, $v)
@@ -24,7 +25,7 @@ function validaCampos($n, $v)
     }
 }
 
-if (isset($_POST['enviar'])) {
+if (isset($_POST['editar'])) {
     //Procesamos el formulario
     $modelo = trim(ucwords($_POST['modelo']));
     $color = trim(ucwords($_POST['color']));
@@ -49,9 +50,12 @@ if (isset($_POST['enviar'])) {
                 $errorGeneral = true;
                 $_SESSION['img'] = "***Error al intentar guardar imagen";
             } else {
-                //ya tenemos la imagen guardad en el disco duro
-                //generamos la url y seteamos el campo coche con esa url 
-                //para guardarlo en la base de datos
+                //ya tenemos la imagen guarda en el disco duro
+                //ahora compruebo si la imagen antigua era o no la default
+                //si no lo era la borro
+                if(basename($esteCoche->img)!='default.png'){
+                    $imagen->borrarFichero(basename($esteCoche->img));
+                }
                 $coche = new Coches;
                 $coche->setImg($imagen->getUrlImagen('coches'));
             }
@@ -61,21 +65,19 @@ if (isset($_POST['enviar'])) {
             $_SESSION['img'] = "***El archivo debe ser de tipo IMAGEN";
         }
     } else {
-        //NO he subido ningún archivo pondre por defecto el default.png
+        //NO he subido ningún archivo mantendré la imagen que el coche tenia
         $coche = new Coches;
-        $imagen = new Imagen;
-        $imagen->setAppUrl('http://127.0.0.1/~pacofer71/pdo/concesionario/public/');
-        $coche->setImg($imagen->guardardefault('coches'));
+        $coche->setImg($esteCoche->img);
     }
 
     if (!$errorGeneral) {
-        //guardamos todo, la imaen ya está seteada seteamos el resto de los campos
+        //guardamos todo, la imagen ya está seteada seteamos el resto de los campos
         $coche->setModelo($modelo)
             ->setColor($color)
             ->setTipo($tipo)
             ->setKms($kms)
             ->setMarca_id($marca_id)
-            ->create();
+            ->update($id);
         $_SESSION['mensaje'] = 'Coche Editado.';
         header("Location:index.php");
     } else {
@@ -106,7 +108,7 @@ if (isset($_POST['enviar'])) {
                 <div class="d-flex justify-content-center mb-1">
                     <img src="<?php echo $esteCoche->img; ?>" width='100rem' height='100rem' class='img-thumbnail d-block' />
                 </div>
-                <form name="s" action='<?php echo $_SERVER['PHP_SELF'] . "?id=$id"; ?>' method='POST' enctype="multipart/form-data">
+                <form name="s" action='<?php echo $_SERVER['PHP_SELF']."?id=$id"; ?>' method='POST' enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="n" class="form-label">Nombre Modelo</label>
                         <input type="text" class="form-control" id="n" placeholder="Nombre Modelo" name="modelo" value="<?php echo $esteCoche->modelo; ?>">
